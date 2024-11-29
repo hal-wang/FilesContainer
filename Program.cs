@@ -12,10 +12,13 @@ var app = builder.Build();
 
 app.Use(async (ctx, next) =>
 {
-    if (ctx.Request.Path.ToString() == "/swagger" || ctx.Request.Path.ToString().StartsWith("/swagger/"))
+    if (app.Environment.IsDevelopment())
     {
-        await next();
-        return;
+        if (ctx.Request.Path.ToString() == "/swagger" || ctx.Request.Path.ToString().StartsWith("/swagger/"))
+        {
+            await next();
+            return;
+        }
     }
 
     if (!ctx.Request.Headers.TryGetValue("SecretKey", out var val) || val != builder.Configuration["SecretKey"])
@@ -27,7 +30,6 @@ app.Use(async (ctx, next) =>
     await next();
 });
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -74,7 +76,6 @@ app.MapPut("/{dir}", async (IFormFile file, [FromRoute] string dir, [FromHeader]
 .DisableAntiforgery();
 
 app.Run();
-
 
 static void CreateParentDirectory(string path)
 {
