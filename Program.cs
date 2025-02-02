@@ -69,6 +69,7 @@ app.MapPut("/{dir}", async (IFormFile file, [FromRoute] string dir, [FromHeader]
 
     using var fs = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
     await file.CopyToAsync(fs);
+    fs.SetLength(file.Length);
     await fs.FlushAsync();
     return Results.Ok();
 })
